@@ -1,0 +1,3 @@
+ICU2 contains processed set A
+ICU_setb contains processed set B
+Logger1 and Logger2 produce sets A and B respectively
