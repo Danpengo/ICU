@@ -49,7 +49,7 @@ class RegisterForm(FlaskForm):
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
 
 
-@app.route('/')
+@app.route('/', methods=["GET", "POST"])
 def index():
     return render_template('index.html')
 
@@ -62,7 +62,7 @@ def login():
         if user:
             if check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
-                return redirect('/file_upload')
+                return redirect(url_for('predict'))
 
         return '<h1>Invalid username or password</h1>'
         #return '<h1>' + form.username.data + ' ' + form.password.data + '</h1>'
@@ -84,11 +84,14 @@ def signup():
 
     return render_template('signup.html', form=form)
 
+
 @app.route('/file_upload', methods=['GET'])
 def hello_world():
     return render_template("file_upload.html")
 
-@app.route('/file_upload', methods=["GET", "POST"])
+
+
+@app.route('/file_upload', methods=["POST", "GET"])
 def predict():
     og_directory = os.getcwd()
 
