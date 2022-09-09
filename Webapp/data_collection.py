@@ -76,12 +76,7 @@ def collect_data(path_of_folder, path_of_outcomes):
         ICU_df.loc[len(ICU_df.index)] = current_patient
 
 
-    ICU_df.to_csv('ICU_dataset.csv', index=False)
-
-
-    ICU_df2 = pd.read_csv('ICU_dataset.csv')
-
-    HeightEstimate = ICU_df2[["Age","Gender","Height"]]
+    HeightEstimate = ICU_df[["Age","Gender","Height"]]
     HeightEstimate = HeightEstimate.replace(-1,np.NaN)
 
     imputer = IterativeImputer(estimator=RandomForestRegressor())
@@ -90,9 +85,9 @@ def collect_data(path_of_folder, path_of_outcomes):
     height = pd.DataFrame(imputer.transform(HeightEstimate))
     height = height.round(1)
 
-    ICU_df2['Height'] = height[2]
+    ICU_df['Height'] = height[2]
 
-    WeightEstimate = ICU_df2[["Age","Gender","Height","Weight"]]
+    WeightEstimate = ICU_df[["Age","Gender","Height","Weight"]]
     WeightEstimate = WeightEstimate.replace(-1,np.NaN)
     imputer = IterativeImputer(estimator=RandomForestRegressor())
     imputer.fit(WeightEstimate)
@@ -100,9 +95,9 @@ def collect_data(path_of_folder, path_of_outcomes):
     weight = pd.DataFrame(imputer.transform(WeightEstimate))
     weight = weight.round(1)
 
-    ICU_df2['Weight'] = weight[3]
+    ICU_df['Weight'] = weight[3]
 
-    ICU_df2['In-hospital death'] = ""
+    ICU_df['In-hospital death'] = ""
 
     count = 0
 
@@ -111,9 +106,9 @@ def collect_data(path_of_folder, path_of_outcomes):
     ICU_deathstats = pd.read_csv('test_set_outcomes.txt')
 
     for j in range(len(ICU_deathstats)):
-        ICU_df2['In-hospital death'][count] = ICU_deathstats['In-hospital_death'][j]
+        ICU_df['In-hospital death'][count] = ICU_deathstats['In-hospital_death'][j]
         count += 1
 
-    ICU_df2.to_csv('ICU_dataset_death.csv', index=False)
+    ICU_df.to_csv('ICU_dataset_death.csv', index=False)
 
-    return ICU_df2
+    return ICU_df
