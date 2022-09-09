@@ -109,6 +109,4 @@ def collect_data(path_of_folder, path_of_outcomes):
         ICU_df['In-hospital death'][count] = ICU_deathstats['In-hospital_death'][j]
         count += 1
 
-    ICU_df.to_csv('ICU_dataset_death.csv', index=False)
-
     return ICU_df
