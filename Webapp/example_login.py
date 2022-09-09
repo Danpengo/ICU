@@ -93,6 +93,8 @@ def predict():
     og_directory = os.getcwd()
 
     compressedfile = request.files['compressedfile']
+
+    os.mkdir(og_directory + "/jsons/")
     compressed_path = "./jsons/" + compressedfile.filename
     compressedfile.save(compressed_path)
 
