@@ -11,8 +11,13 @@ Sign Up
 {% endblock %}
 
 {% block content %}
-<div class="container">
+{% for message in get_flashed_messages() %}
+  <div class="alert alert-danger text-center" role="alert">
+    {{ message }}
+  </div>
+{% endfor %}
 
+<div class="container">
   <form class="form-signin" method="POST" action="/signup">
     <h2 class="form-signin-heading">Sign Up</h2>
     {{ form.hidden_tag() }}

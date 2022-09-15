@@ -11,16 +11,22 @@ Login
 {% endblock %}
 
 {% block content %}
-    <div class="container">
+{% for message in get_flashed_messages() %}
+  <div class="alert alert-danger text-center" role="alert">
+    {{ message }}
+  </div>
+{% endfor %}
 
-      <form class="form-signin" method="POST" action="/login">
-        <h2 class="form-signin-heading">Please sign in</h2>
-        {{ form.hidden_tag() }}
-        {{ wtf.form_field(form.username) }}
-        {{ wtf.form_field(form.password) }}
-        {{ wtf.form_field(form.remember) }}
-        <button class="btn btn-lg btn-primary btn-block" type="submit" >Sign in</button></a>
-      </form>
+<div class="container">
 
-    </div> <!-- /container -->
+  <form class="form-signin" method="POST" action="/login">
+    <h2 class="form-signin-heading">Sign in</h2>
+    {{ form.hidden_tag() }}
+    {{ wtf.form_field(form.username) }}
+    {{ wtf.form_field(form.password) }}
+    {{ wtf.form_field(form.remember) }}
+    <button class="btn btn-lg btn-primary btn-block" type="submit" >Sign in</button></a>
+  </form>
+
+</div> <!-- /container -->
 {% endblock %}
