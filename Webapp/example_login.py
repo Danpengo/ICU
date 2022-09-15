@@ -1,5 +1,6 @@
+import email
 from xml.dom import ValidationErr
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField, BooleanField
@@ -33,7 +34,16 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(80))
 
+class UsernameErr(Exception):
+    pass
+
+class EmailErr(Exception):
+    pass
+
 db.create_all()
+
+print(User.query.with_entities(User.email).all())
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -52,10 +62,16 @@ class RegisterForm(FlaskForm):
     def validate_username(self, username):
         username_exists = User.query.filter_by(username=username.data).first()
         if username_exists:
-            raise ValidationErr(
+            raise UsernameErr(
                 "Username taken"
             )
-    
+
+    def validate_email(self, email):
+        email_exists = User.query.filter_by(email=email.data).first()
+        if email_exists:
+            raise EmailErr(
+                "Email taken"
+            )
 
 @app.route('/', methods=["GET", "POST"])
 def index():
@@ -72,8 +88,8 @@ def login():
                 login_user(user, remember=form.remember.data)
                 return redirect(url_for('predict'))
 
-        return '<h1>Invalid username or password</h1>'
-        #return '<h1>' + form.username.data + ' ' + form.password.data + '</h1>'
+        flash("Username or Password incorrect")
+        return render_template('login.html', form=form)
 
     return render_template('login.html', form=form)
 
@@ -87,8 +103,12 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
             return '<h1>New user has been created!</h1>'
-    except ValidationErr:
-        return "<h1>Username Taken</h1>"
+    except UsernameErr:
+        flash("Username taken")
+        return render_template('signup.html', form=form)
+    except EmailErr:
+        flash("Email taken")
+        return render_template("signup.html", form=form)
 
     return render_template('signup.html', form=form)
 
