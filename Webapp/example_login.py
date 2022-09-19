@@ -1,3 +1,4 @@
+from bz2 import compress
 import email
 from xml.dom import ValidationErr
 from flask import Flask, render_template, redirect, url_for, request, flash
@@ -102,6 +103,12 @@ def signup():
             new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
             db.session.add(new_user)
             db.session.commit()
+            og_directory = os.getcwd()
+            new_directory = og_directory + '/registered/'
+            if os.path.isdir(new_directory) == False:
+                os.mkdir(og_directory + "/registered/")
+            new_directory = og_directory + '/registered/' + str(new_user.id)
+            os.mkdir(new_directory)
             return '<h1>New user has been created!</h1>'
     except UsernameErr:
         flash("Username taken")
@@ -127,15 +134,17 @@ def predict():
 
     compressedfile = request.files['compressedfile']
 
-    os.mkdir(og_directory + "/jsons/")
-    compressed_path = "./jsons/" + compressedfile.filename
+
+    compressed_path = "./registered/" + str(current_user.id) + '/' + compressedfile.filename
     compressedfile.save(compressed_path)
+
+    print(compressed_path)
 
     with zipfile.ZipFile(compressed_path, 'r') as zip_ref:
         print(zip_ref)
-        zip_ref.extractall("./jsons/")
+        zip_ref.extractall("./registered/" + str(current_user.id))
     
-    full_dataset = data_collection.collect_data('./jsons/whole_test/test_set/', './jsons/whole_test/')
+    full_dataset = data_collection.collect_data("./registered/" + str(current_user.id) + '/' + 'whole_test/test_set/', "./registered/" + str(current_user.id) + '/' + 'whole_test/')
     
     knn_impute_dataset = knn_impute.knn_impute_data(full_dataset)
 
