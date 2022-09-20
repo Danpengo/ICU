@@ -1,7 +1,7 @@
 from bz2 import compress
 import email
 from xml.dom import ValidationErr
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, send_file
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField, BooleanField
@@ -15,7 +15,7 @@ import sys
 import zipfile
 import data_collection
 import knn_impute
-import os
+from datetime import datetime
 from neural_network import nn_predictor, create_baseline
 import lime_applied
 
@@ -163,6 +163,36 @@ def predict():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+@app.route('/history', defaults={'pathing': ''})
+@app.route('/history/<path:pathing>')
+@login_required
+def history(pathing):
+    
+    og_directory = os.getcwd()
+    compressed_path = og_directory + "./registered/" + str(current_user.id)
+    
+    #fullpath = os.path.join(pathing, compressed_path)
+    if os.path.isfile(pathing):
+        return send_file(pathing)
+
+    def historystats(x):
+        fileinfo = x.stat()
+        filestime = datetime.fromtimestamp(fileinfo.st_mtime)
+        filestime = datetime.strftime(filestime, '%d-%m-%Y %H:%M')
+        filespath = os.path.relpath(x.path,compressed_path)
+        if not os.path.isfile(filespath):
+            folderexist = True
+        else:
+            folderexist = False
+        return {'names': x.name, 'times': filestime, 'downloads': filespath, 'folder': folderexist}
+
+    fileData = [historystats(x) for x in os.scandir(compressed_path)]
+    fileDataMod = []
+    for filed in fileData:
+        if filed['folder']== False:
+            fileDataMod.append(filed)
+    return render_template('history.html', files=fileDataMod)
 
 
 if __name__ == '__main__':
