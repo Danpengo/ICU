@@ -33,17 +33,17 @@ History
     &nbsp;
     <thead>
         <tr>
-            <th><i style="margin-right:20em"></i>Name</th>
+            <th>Name</th>
             <th>Analysis</th>
-            <th><i style="margin-left:3em"></i>Time (AEST)</th>
+            <th>Time (AEST)</th>
         </tr>
     </thead>
     <tbody>
         {% for file in files %}
         <tr>
-            <td><a href="{{ url_for('history',pathing=file['downloads']) }}"><span><i style="margin-right:20em"></i>{{ file['names'] }}</span></a></td>
+            <td><a href="{{ url_for('history',pathing=file['downloads']) }}"><span>{{ file['names'] }}</span></a></td>
             <td><a href="#"><span>Analyse</span></a></td>
-            <td><i style="margin-left:3em"></i>{{file['times']}}</td>
+            <td>{{file['times']}}</td>
         </tr>
         {% endfor %}
     </tbody>
