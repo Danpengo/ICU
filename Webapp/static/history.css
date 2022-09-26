@@ -1,0 +1,14 @@
+body {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: #eee;
+  }
+  .customTable th { 
+    background-color:rgb(58, 58, 58);
+    color:white;
+    width:30%; 
+  }
+  .customTable td, .customTable th { 
+    padding:3px;
+    border:1px solid rgb(58, 58, 58); 
+  }
