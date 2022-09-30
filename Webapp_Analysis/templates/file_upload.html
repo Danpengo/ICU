@@ -1,0 +1,44 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}
+File_Upload
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='signin.css')}}">
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">ICU</a>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Home</a></li>
+          <li><a href="{{ url_for('history') }}">History</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </nav>
+<body>
+    <h1 class="text-center">Predict ICU Mortality</h1>
+
+    <form class="p-3 text-center" action="/file_upload", method="post" enctype="multipart/form-data">
+        <input class="form-control" type="file" name="compressedfile">
+        <input class="btn btn-primary mt-3" type="submit" value="Predict Outcome">
+    </form>
+
+    {% if prediction %}
+        <p class="text-center"> {{prediction}}</p>
+    {% endif %}
+</body>
+{% endblock %}
