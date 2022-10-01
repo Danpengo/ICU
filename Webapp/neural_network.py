@@ -40,4 +40,4 @@ def nn_predictor(dataset, model):
     ypred2 = grid_result.predict(X)
     cr = classification_report(Y, ypred2)
 
-    return grid_result, cr
+    return grid_result, cr, Y, ypred2

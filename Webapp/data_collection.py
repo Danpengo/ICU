@@ -35,10 +35,13 @@ def collect_data(path_of_folder, path_of_outcomes):
 
     os.chdir(og_directory + path_of_folder)
 
+    output = []
+
     for filename in range(len(only_files)):
         current_patient = []
         f = only_files[filename]
         print(f)
+        output.append(f)
         convert = pd.read_csv(str(f))
         for desc in general_desc:#non time series
             temp = convert.loc[convert['Parameter'] == desc,'Value']
@@ -109,4 +112,4 @@ def collect_data(path_of_folder, path_of_outcomes):
         ICU_df['In-hospital death'][count] = ICU_deathstats['In-hospital_death'][j]
         count += 1
 
-    return ICU_df
+    return ICU_df,output

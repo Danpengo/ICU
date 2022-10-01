@@ -1,12 +1,12 @@
 {% extends "bootstrap/base.html" %}
 
 {% block title %}
-History
+Analysis
 {% endblock %}
 
 {% block styles %}
 {{super()}}
-<link rel="stylesheet" href="{{url_for('.static', filename='history.css')}}">
+<link rel="stylesheet" href="{{url_for('.static', filename='analysis.css')}}">
 {% endblock %}
 
 {% block content %}
@@ -22,32 +22,43 @@ History
       </div>
       <div id="navbar" class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
-          <li><a href="{{ url_for('hello_world') }}">Home</a></li>
-          <li class="active"><a href="#">History</a></li>
+          <li class="active"><a href="#">Analysis</a></li>
+          <li><a href="{{ url_for('history') }}">History</a></li>
           <li><a href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
       </div><!--/.nav-collapse -->
     </div>
   </nav>
-  <table class="table table-striped customTable">
-    &nbsp;
-    <thead>
+<body>
+  <h1 class="text-center">Analysis</h1>
+
+  <table class="table table-hover table">
+
+      <thead class="thread-dark">
         <tr>
-            <th>Name</th>
-            <th>Analysis</th>
-            <th>Time (AEST)</th>
+            <th style="width:10%">ID</th>
+            <th style="width:30%">Predicted Survival</th>
+            <th style="width:30%">Actual Survival</th>
+            <th style="width:30%">Analysis</th>
         </tr>
-    </thead>
+      </thead>
     <tbody>
-        {% for file in files %}
+        {% for id in post_id %}
         <tr>
-            <td><a href="{{ url_for('history',pathing=file['downloads']) }}"><span>{{ file['names'] }}</span></a></td>
-            <td><a href="{{ url_for('history_analysis',pathing=file['downloads']) }}"><span>Analyse</span></a></td>
-            <td>{{file['times']}}</td>
+            <td style="width:10%">{{id}}</td>
+            <td style="width:30%">{{post_ypred[loop.index0]}}</td>
+            <td style="width:30%">{{post_y[loop.index0]}}</td>
+            <td style="width:30%"><a href="{{url_for('analysis_id', patient_id = loop.index0)}}" target='_blank'><span>View Analysis</span></a>
+
+
+            </td>
         </tr>
         {% endfor %}
     </tbody>
-</table>
+  </table>
 
 
+
+
+</body>
 {% endblock %}

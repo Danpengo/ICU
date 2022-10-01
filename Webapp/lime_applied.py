@@ -9,6 +9,8 @@ import numpy as np
 import lime.lime_tabular
 import matplotlib.pyplot as plt
 
+
+
 def LIME_explainer(model):
 
     dataframe = read_csv("ICU_dataset_death_knnimputed.csv")
@@ -35,7 +37,9 @@ def LIME_sample(dataset, model, explainer, sample):
 
     X_new = dataset[:, :-1].astype(float)
 
-    exp = explainer.explain_instance(X_new[sample], model.predict_proba, num_features=predictors)
+    print(X_new)
 
-    exp.save_to_file('lime_test.html')
+    exp = explainer.explain_instance(X_new[sample], model.predict_proba,num_features=predictors)
+
+    exp.save_to_file('./static/lime_test.html')
 
