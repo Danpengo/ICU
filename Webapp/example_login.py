@@ -140,15 +140,13 @@ def hello_world():
     return render_template("file_upload.html")
 
 
-@app.route('/file_upload', methods=["POST", "GET"], defaults={'pathing': 0})
+@app.route('/file_upload', methods=["POST", "GET"])
 @login_required
-def predict(pathing):
+def predict():
     og_directory = os.getcwd()
     os.chdir(og_directory)
-    if pathing == 0:
-        compressedfile = request.files['compressedfile']
-    else:
-        compressedfile = pathing
+    compressedfile = request.files['compressedfile']
+
 
     compressed_path = "./registered/" + str(current_user.id) + '/' + compressedfile.filename
     compressedfile.save(compressed_path)
@@ -316,3 +314,4 @@ def analysis_id(patient_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
