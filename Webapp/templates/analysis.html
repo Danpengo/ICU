@@ -30,25 +30,38 @@ Analysis
     </div>
   </nav>
 <body>
-  <h1 class="text-center">Analysis</h1>
+</br>
+</br>
+  <div class="box1"></div>
+  <div class="box2"><b>Total Patients: {{total_patients}}</b></div>
+  <div class="box3"></div>
+  <div class="box4"><b>Total Actual Survived: {{total_y_survive}}</b></div>
+  <div class="box5"></div>
+  <div class="box6"><b>Total Predicted Survived: {{total_ypred_survive}}</b></div>
+  <div class="box7"></div>
+  <div class="box8"><b>Overall Score (Out of 100): {{final_score}}</b></div>
+  <div class="box9"></div>
+  <div class="box10">&nbsp;</div>
 
   <table class="table table-hover table">
 
       <thead class="thread-dark">
         <tr>
             <th style="width:10%">ID</th>
-            <th style="width:30%">Predicted Survival</th>
-            <th style="width:30%">Actual Survival</th>
-            <th style="width:30%">Analysis</th>
+            <th style="width:22.5%">Actual Survival</th>
+            <th style="width:22.5%">Predicted Survival</th>
+            <th style="width:22.5">Probability</th>
+            <th style="width:22.5%">Analysis</th>
         </tr>
       </thead>
     <tbody>
         {% for id in post_id %}
         <tr>
             <td style="width:10%">{{id}}</td>
-            <td style="width:30%">{{post_ypred[loop.index0]}}</td>
-            <td style="width:30%">{{post_y[loop.index0]}}</td>
-            <td style="width:30%"><a href="{{url_for('analysis_id', patient_id = loop.index0)}}" target='_blank'><span>View Analysis</span></a>
+            <td style="width:22.5%">{{post_y[loop.index0]}}</td>
+            <td style="width:22.5%">{{post_ypred[loop.index0]}}</td>
+            <td style="width:22.5%">{{list_confidence[loop.index0]}}</td>
+            <td style="width:22.5%"><a href="{{url_for('analysis_id', patient_id = loop.index0)}}" target='_blank'><span>View Analysis</span></a>
 
 
             </td>

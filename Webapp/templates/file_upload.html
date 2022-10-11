@@ -10,6 +10,15 @@ File_Upload
 {% endblock %}
 
 {% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+</br>
+      <div class="alert {{ category }} text-center"> {{ message|capitalize }} </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
       <div class="navbar-header">
