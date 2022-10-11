@@ -103,3 +103,11 @@ body {
     display: inline-block;
     border-radius: 50%;
   }
+  .alert.success {
+    background-color: rgb(178, 240, 178);
+    color: rgb(43, 82, 43);
+  }
+  .alert.error {
+    background-color: rgb(253, 201, 201);
+    color: rgb(123, 54, 54);
+  }
