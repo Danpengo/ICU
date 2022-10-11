@@ -102,7 +102,7 @@ def login():
                 login_user(user, remember=form.remember.data)
                 return redirect(url_for('predict'))
 
-        flash("Username or Password incorrect")
+        flash("Username or Password incorrect", 'error')
         return render_template('login.html', form=form)
 
     return render_template('login.html', form=form)
@@ -123,12 +123,13 @@ def signup():
                 os.mkdir(og_directory + "/registered/")
             new_directory = og_directory + '/registered/' + str(new_user.id)
             os.mkdir(new_directory)
-            return '<h1>New user has been created!</h1>'
+            flash("New User Created", 'success')
+            return redirect('/login')
     except UsernameErr:
-        flash("Username taken")
+        flash("Username taken", "error")
         return render_template('signup.html', form=form)
     except EmailErr:
-        flash("Email taken")
+        flash("Email taken", "error")
         return render_template("signup.html", form=form)
 
     return render_template('signup.html', form=form)
@@ -143,33 +144,54 @@ def hello_world():
 @app.route('/file_upload', methods=["POST", "GET"])
 @login_required
 def predict():
+    
     og_directory = os.getcwd()
     os.chdir(og_directory)
+    
     compressedfile = request.files['compressedfile']
-
+    checkfile = compressedfile
 
     compressed_path = "./registered/" + str(current_user.id) + '/' + compressedfile.filename
-    compressedfile.save(compressed_path)
+
+    try:
+        compressedfile.save(compressed_path)
+    except PermissionError:
+        flash("Please upload a file", "error")
+        return redirect(url_for('predict'))
 
     if os.path.isdir("./registered/" + str(current_user.id) + '/' + 'whole_test/'):
         shutil.rmtree("./registered/" + str(current_user.id) + '/' + 'whole_test/')
-
     print(compressed_path)
 
-    with zipfile.ZipFile(compressed_path, 'r') as zip_ref:
-        print(zip_ref)
-        zip_ref.extractall("./registered/" + str(current_user.id))
+    try:
+        with zipfile.ZipFile(compressed_path, 'r') as zip_ref:
+            print(zip_ref)
+            zip_ref.extractall("./registered/" + str(current_user.id))
+    except zipfile.BadZipFile:
+        os.remove(compressed_path)
+        flash("Please upload a zip file", "error")
+        return redirect(url_for('predict'))
 
-    full_dataset, file_id = data_collection.collect_data(
-        "./registered/" + str(current_user.id) + '/' + 'whole_test/test_set/',
-        "./registered/" + str(current_user.id) + '/' + 'whole_test/')
+    try:
+        full_dataset, file_id = data_collection.collect_data(
+            "./registered/" + str(current_user.id) + '/' + 'whole_test/test_set/',
+            "./registered/" + str(current_user.id) + '/' + 'whole_test/')
+    except FileNotFoundError:
+        os.remove(compressed_path)
+        new_files = os.listdir("./registered/" + str(current_user.id))
+        for h in range(len(new_files)):
+            if new_files[h][-3:] != 'zip':
+                os.remove("./registered/" + str(current_user.id) + "/" + new_files[h])
+        flash("Please set up zip file correctly", "error")
+        return redirect(url_for('predict'))
+
     knn_impute_dataset = knn_impute.knn_impute_data(full_dataset)
 
     os.chdir(og_directory)
 
-    global glob_model,glob_y,glob_ypred
+    global glob_model,glob_y,glob_ypred,glob_ypred_prob
 
-    glob_model, cr,glob_y,glob_ypred = nn_predictor(knn_impute_dataset, create_baseline())
+    glob_model, cr,glob_y,glob_ypred, glob_ypred_prob = nn_predictor(knn_impute_dataset, create_baseline())
 
     #explainer = lime_applied.LIME_explainer(model)
 
@@ -235,9 +257,9 @@ def history_analysis(pathing):
 
     os.chdir(og_directory)
 
-    global glob_model,glob_y,glob_ypred
+    global glob_model,glob_y,glob_ypred,glob_ypred_prob
 
-    glob_model, cr,glob_y,glob_ypred = nn_predictor(knn_impute_dataset, create_baseline())
+    glob_model, cr,glob_y,glob_ypred,glob_ypred_prob = nn_predictor(knn_impute_dataset, create_baseline())
 
     #explainer = lime_applied.LIME_explainer(model)
 
@@ -267,25 +289,119 @@ def analysis():
 
     list_y = []
     list_ypred = []
+    list_confidence = []
+    total_patients = len(glob_y)
+    total_y_survive = 0
+    total_y_nsurvive = 0
+    total_ypred_survive = 0
+    total_ypred_nsurvive = 0
+    expected_survive = 0
+    likely_survive = 0
+    probably_survive = 0
+    probably_nsurvive = 0
+    likely_nsurvive = 0
+    expected_nsurvive = 0
+    overall_score = 0
+    expected_s_actual_s = 0
+    expected_d_actual_d = 0
 
+    # don't include expected correct
+
+    for i in range(len(glob_ypred_prob)):
+        actual_outcome = glob_y[i]
+        if actual_outcome == 0.0:
+            if glob_ypred_prob[i][0] > 0.95:
+                expected_survive += 1
+                overall_score += 50
+                list_confidence.append("Expected")
+                expected_s_actual_s += 1
+            elif glob_ypred_prob[i][0] > 0.8:
+                likely_survive += 1
+                overall_score += 60
+                list_confidence.append("Most Likely")
+            elif glob_ypred_prob[i][0] > 0.5:
+                probably_survive += 1
+                overall_score += 70
+                list_confidence.append("Likely")
+            elif glob_ypred_prob[i][0] > 0.2:
+                likely_nsurvive += 1
+                overall_score += 80
+                list_confidence.append("Unlikely")
+            elif glob_ypred_prob[i][0] > 0.05:
+                probably_nsurvive += 1
+                overall_score += 90
+                list_confidence.append("Most Unlikely")
+            elif glob_ypred_prob[i][0] >= 0:
+                expected_nsurvive += 1
+                overall_score += 100
+                list_confidence.append("Unexpected")
+        elif actual_outcome == 1.0:
+            if glob_ypred_prob[i][0] > 0.95:
+                expected_survive += 1
+                overall_score += 0
+                list_confidence.append("Unexpected")
+            elif glob_ypred_prob[i][0] > 0.8:
+                likely_survive += 1
+                overall_score += 10
+                list_confidence.append("Most Unlikely")
+            elif glob_ypred_prob[i][0] > 0.5:
+                probably_survive += 1
+                overall_score += 20
+                list_confidence.append("Unlikely")
+            elif glob_ypred_prob[i][0] > 0.2:
+                likely_nsurvive += 1
+                overall_score += 30
+                list_confidence.append("Likely")
+            elif glob_ypred_prob[i][0] > 0.05:
+                probably_nsurvive += 1
+                overall_score += 40
+                list_confidence.append("Most Likely")
+            elif glob_ypred_prob[i][0] >= 0:
+                expected_nsurvive += 1
+                overall_score += 50
+                expected_d_actual_d += 1
+                list_confidence.append("Expected")
+    
     for i in range(len(glob_y)):
-        if glob_y[i] == 0.0:
+        if glob_y[i] == 1.0:
             list_y.append('Not Survived')
-        elif glob_y[i] == 1.0:
+            total_y_nsurvive += 1
+        elif glob_y[i] == 0.0:
             list_y.append('Survived')
+            total_y_survive += 1
 
     for i in range(len(glob_ypred)):
-        if glob_ypred[i] == 0.0:
+        if glob_ypred[i] == 1.0:
             list_ypred.append('Not Survived')
-        elif glob_ypred[i] == 1.0:
+            total_ypred_nsurvive += 1
+        elif glob_ypred[i] == 0.0:
             list_ypred.append('Survived')
+            total_ypred_survive += 1
+
+    print("total patients = " + str(total_patients))
+    print("total_y_survive = " + str(total_y_survive))
+    print("total_y_nsurvive = " + str(total_y_nsurvive))
+    print("total_ypred_survive = " + str(total_ypred_survive))
+    print("total_ypred_nsurvive = " + str(total_ypred_nsurvive))
+    print("total expected_survive = " + str(expected_survive))
+    print("total likely_survive = " + str(likely_survive))
+    print("total probably_survive = " + str(probably_survive))
+    print("total probably_nsurvive = " + str(probably_nsurvive))
+    print("total likely_nsurvive = " + str(likely_nsurvive))
+    print("total expected_nsurvive = " + str(expected_nsurvive))
+
+    performance = overall_score - 50*(expected_d_actual_d + expected_s_actual_s) 
+    final_score = performance/(total_patients - (expected_d_actual_d + expected_s_actual_s))
+    print("Overall Score = " + str(final_score))
 
     post_id = list_id
     post_html = url_for('static', filename="lime_test.html")
     post_y = list_y
     post_ypred = list_ypred
 
-    return render_template('analysis.html', post_html=post_html, post_id=post_id, post_y=post_y, post_ypred=post_ypred)
+    return render_template('analysis.html', post_html=post_html, post_id=post_id, post_y=post_y, 
+    post_ypred=post_ypred, total_patients=total_patients, total_y_survive=total_y_survive, 
+    total_ypred_survive=total_ypred_survive, final_score=final_score, list_confidence=list_confidence)
 
 
 @app.route('/analysis_id', methods=["POST", "GET"])
@@ -314,4 +430,3 @@ def analysis_id(patient_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
-

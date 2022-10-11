@@ -38,6 +38,8 @@ def nn_predictor(dataset, model):
     grid_result = joblib.load("model_file_name.pkl")
 
     ypred2 = grid_result.predict(X)
+    ypred2_probability = grid_result.predict_proba(X)
+
     cr = classification_report(Y, ypred2)
 
-    return grid_result, cr, Y, ypred2
+    return grid_result, cr, Y, ypred2, ypred2_probability
