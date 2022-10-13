@@ -10,6 +10,17 @@ from sklearn.impute import IterativeImputer
 
 
 def collect_data(path_of_folder, path_of_outcomes):
+    
+    """
+    This function takes each file containing patient data and wrangles it into dataframe.
+    
+    
+    time complexity: O(n*m) where n is the max number of time series calculations in any
+                     patient file and m is the number of patients.
+    parameter path_of_folder: must be the path containing the patients files
+    parameter path_of_outcomes: must be the path containing the outcomes of the patients
+    return: The dataframe and file_id
+    """
 
     general_desc = ["RecordID", "Age", "Gender", "Height", "ICUType", "Weight"]
 
