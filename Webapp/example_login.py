@@ -52,6 +52,12 @@ class EmailErr(Exception):
 
 db.create_all()
 
+"""
+remove_user_id = 1
+User.query.filter(User.id == remove_user_id).delete()
+db.session.commit()
+"""
+
 print(User.query.with_entities(User.email).all())
 
 
