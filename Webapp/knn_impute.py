@@ -12,6 +12,16 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 
 def knn_impute_data(dataset):
+    
+    """
+    The following algorithm imputes missing values in the given dataframe.
+    
+    parameter dataset: A pandas dataframe
+    precondition: The pandas dataframe must be formatted correctly
+    return: an imputed dataset
+    time_complexity: time complexity is dependant on number of patients, number of predictors,
+                     the number of missing values, and the number of outliers within predictors.
+    """
 
     drop_columns = ["TroponinI.count", "TroponinI.min", "TroponinI.mean", "TroponinI.median",
                     "TroponinI.max", "TroponinI.first", "TroponinI.last", "TroponinT.count", "TroponinT.min",
