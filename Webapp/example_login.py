@@ -378,21 +378,8 @@ def analysis():
             list_ypred.append('Survived')
             total_ypred_survive += 1
 
-    print("total patients = " + str(total_patients))
-    print("total_y_survive = " + str(total_y_survive))
-    print("total_y_nsurvive = " + str(total_y_nsurvive))
-    print("total_ypred_survive = " + str(total_ypred_survive))
-    print("total_ypred_nsurvive = " + str(total_ypred_nsurvive))
-    print("total expected_survive = " + str(expected_survive))
-    print("total likely_survive = " + str(likely_survive))
-    print("total probably_survive = " + str(probably_survive))
-    print("total probably_nsurvive = " + str(probably_nsurvive))
-    print("total likely_nsurvive = " + str(likely_nsurvive))
-    print("total expected_nsurvive = " + str(expected_nsurvive))
-
     performance = overall_score - 50*(expected_d_actual_d + expected_s_actual_s) 
     final_score = performance/(total_patients - (expected_d_actual_d + expected_s_actual_s))
-    print("Overall Score = " + str(final_score))
 
     post_id = list_id
     post_html = url_for('static', filename="lime_test.html")
